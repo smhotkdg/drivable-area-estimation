@@ -75,6 +75,9 @@ class PipelineIntegrationTests(unittest.TestCase):
             self.check_video(arrows, 9)
             stats = json.loads(arrows.with_suffix(".validation.json").read_text())
             self.assertEqual(stats["decoded_frames"], 9)
+            self.assertTrue(stats["configuration"]["steering"]["enabled"])
+            detail = json.loads(arrows.with_suffix(".json").read_text())
+            self.assertIn("steering", detail["frames"][0])
 
     def check_video(self, path, expected):
         cap = cv2.VideoCapture(str(path))

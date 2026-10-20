@@ -27,6 +27,7 @@ from drivable_area.geometry.lane_boundary_tracker import (
 )
 from drivable_area.geometry.single_lane_center import SingleLaneTracker, center_metrics
 from drivable_area.tracking.direction_votes import DirectionVoteTracker
+from drivable_area.tracking.steering_indicator import ImageSteeringIndicator
 from drivable_area.visualization.dashboard import draw_direction_dashboard
 
 
@@ -139,6 +140,11 @@ def main(argv=None):
         intent_tracker = IntentTracker(fps)
         vote_tracker = (
             DirectionVoteTracker(fps, **asdict(settings.votes)) if args.direction_arrows else None
+        )
+        steering_values = asdict(settings.steering)
+        steering_values.pop("enabled")
+        steering_indicator = (
+            ImageSteeringIndicator(fps, **steering_values) if settings.steering.enabled else None
         )
         boundary_tracker = LaneBoundaryTracker(fps)
         lane_identity = SingleLaneTracker(fps)
@@ -283,6 +289,10 @@ def main(argv=None):
                     == "boundary_observation"
                 )
                 info["direction_dashboard"] = vote_tracker.update(info["intent_evidence"], observed)
+                if steering_indicator is not None:
+                    info["direction_dashboard"]["steering"] = steering_indicator.update(
+                        info["intent_evidence"], info["direction_dashboard"], observed
+                    )
                 rendered = draw_direction_dashboard(
                     rendered, info["direction_dashboard"], info, settings=settings.display
                 )

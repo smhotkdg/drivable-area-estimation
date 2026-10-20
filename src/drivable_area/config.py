@@ -48,14 +48,37 @@ class ModelSettings:
 
 
 @dataclass
+class SteeringSettings:
+    enabled: bool = True
+    smoothing_seconds: float = 0.18
+    max_rate_deg_per_second: float = 90.0
+    max_angle_deg: float = 60.0
+    expiry_seconds: float = 0.5
+
+
+@dataclass
 class Settings:
     video: VideoSettings = field(default_factory=VideoSettings)
     votes: VoteSettings = field(default_factory=VoteSettings)
     display: DisplaySettings = field(default_factory=DisplaySettings)
     models: ModelSettings = field(default_factory=ModelSettings)
+    steering: SteeringSettings = field(default_factory=SteeringSettings)
 
     def validate(self):
         v, vote, display, m = self.video, self.votes, self.display, self.models
+        steering = self.steering
+        if (
+            min(
+                steering.smoothing_seconds,
+                steering.max_rate_deg_per_second,
+                steering.max_angle_deg,
+                steering.expiry_seconds,
+            )
+            <= 0
+        ):
+            raise ValueError("스티어링 표시의 시간/각도 제한은 양수여야 합니다")
+        if steering.enabled and display.panel_height < 120:
+            raise ValueError("스티어링 표시에는 panel_height >=120이 필요합니다")
         if (
             v.height < 240
             or v.height % 2

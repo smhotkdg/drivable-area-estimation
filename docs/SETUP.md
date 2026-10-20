@@ -6,6 +6,7 @@
 - FFmpeg 실행 파일이 PATH에 있어야 H.264 저장과 오디오 처리가 가능합니다.
 - 한글 글꼴: Windows 맑은 고딕, Linux Noto Sans CJK, macOS Apple SD Gothic Neo를 자동 탐색합니다.
 - 자동 탐색이 실패하면 `--font "글꼴파일경로"` 또는 `[display].font_path`를 지정합니다.
+- 스티어링 휠 표시를 켜면 패널 높이는 최소 120px입니다. 기본값은 132px입니다.
 
 Linux 예시:
 

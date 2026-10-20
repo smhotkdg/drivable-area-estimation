@@ -22,6 +22,14 @@ font_path = ""          # 자동 탐색; 필요하면 한글 글꼴 파일의 �
 panel_height = 132
 arrow_length = 40
 
+# 화면 기준 방향각을 그리는 보조 그림입니다. 실제 차량 조향각이 아닙니다.
+[steering]
+enabled = true
+smoothing_seconds = 0.18
+max_rate_deg_per_second = 90.0
+max_angle_deg = 60.0
+expiry_seconds = 0.5
+
 [models]
 twin_weight = "weights/small.pth"
 twin_config = "small"

@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from drivable_area.tracking.direction_votes import DIRECTIONS, KOREAN
 from drivable_area.config import DisplaySettings
+from drivable_area.visualization.steering_wheel import draw_steering_wheel
 
 
 @lru_cache(maxsize=12)
@@ -39,10 +40,13 @@ def draw_direction_dashboard(image, state, info=None, replace_header=True, setti
     cv2.rectangle(image, (x0, top), (x1, bottom), (20, 25, 30), -1)
     cv2.line(image, (x0, bottom), (x1, bottom), (85, 100, 110), 1, cv2.LINE_AA)
     label = state["direction"]
+    steering = state.get("steering")
     fresh = label != "unknown" and not state["stale"]
     colors = {"left": (255, 210, 80), "straight": (110, 245, 150), "right": (80, 195, 255)}
     base_y = top + round(94 * scale * ui_scale)
     for index, direction in enumerate(DIRECTIONS):
+        if direction == "straight" and steering is not None:
+            continue
         weight = state["arrow_weights"][direction]
         origin = np.array([w * (0.20 + 0.30 * index), base_y])
         length = min(settings.arrow_length, settings.panel_height * 0.32) * scale * max(0.0, weight)
@@ -82,6 +86,13 @@ def draw_direction_dashboard(image, state, info=None, replace_header=True, setti
                 -1,
                 cv2.LINE_AA,
             )
+    if steering is not None:
+        draw_steering_wheel(
+            image,
+            (round(w * 0.5), round(top + 73 * scale * ui_scale)),
+            round(18 * scale * ui_scale),
+            steering,
+        )
     pil = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(pil)
 
@@ -89,7 +100,7 @@ def draw_direction_dashboard(image, state, info=None, replace_header=True, setti
         draw.text(
             (round(x), round(top + (y - top) * ui_scale)),
             value,
-            font=_font(max(9, round(size * scale)), settings.font_path),
+            font=_font(max(8, round(size * scale)), settings.font_path),
             fill=color,
             anchor=anchor,
         )
@@ -116,6 +127,18 @@ def draw_direction_dashboard(image, state, info=None, replace_header=True, setti
     )
     for index, direction in enumerate(DIRECTIONS):
         cx = w * (0.20 + 0.30 * index)
+        if direction == "straight" and steering is not None:
+            angle = steering["image_bearing_deg"]
+            value = "회전량 대기" if angle is None else f"화면 {angle:+.1f}°"
+            text(cx, top + 94 * scale, value, 9, anchor="mt")
+            text(
+                cx,
+                top + 107 * scale,
+                f"직진 {round(state['arrow_weights'][direction] * 100)}%",
+                9,
+                anchor="mt",
+            )
+            continue
         text(
             cx,
             top + 101 * scale,
@@ -123,5 +146,16 @@ def draw_direction_dashboard(image, state, info=None, replace_header=True, setti
             11,
             anchor="mt",
         )
-    text(10 * scale, top + 119 * scale, "최근 1초 검출 가중치 · 정답 확률 아님", 9, (160, 177, 190))
+    footer = (
+        "1초 지지율≠정답확률 · 화면각도≠조향각"
+        if steering is not None
+        else "최근 1초 검출 가중치 · 정답 확률 아님"
+    )
+    text(
+        10 * scale,
+        top + (120 if steering is not None else 119) * scale,
+        footer,
+        8 if steering is not None else 9,
+        (160, 177, 190),
+    )
     return cv2.cvtColor(np.asarray(pil), cv2.COLOR_RGB2BGR)

@@ -13,6 +13,7 @@ from dataclasses import asdict
 from drivable_area.config import load_settings
 from drivable_area.video_io import require_ffmpeg, encode_video
 from drivable_area.tracking.direction_votes import DirectionVoteTracker
+from drivable_area.tracking.steering_indicator import ImageSteeringIndicator
 from drivable_area.visualization.dashboard import draw_direction_dashboard
 
 
@@ -63,6 +64,11 @@ def main(argv=None):
     if not writer.isOpened():
         raise RuntimeError("Cannot open temporary video writer")
     tracker = DirectionVoteTracker(fps, **asdict(settings.votes))
+    steering_values = asdict(settings.steering)
+    steering_values.pop("enabled")
+    steering_indicator = (
+        ImageSteeringIndicator(fps, **steering_values) if settings.steering.enabled else None
+    )
     records = []
     started = time.perf_counter()
     mixed_qa = False
@@ -77,6 +83,8 @@ def main(argv=None):
                 and evidence.get("source", "boundary_observation") == "boundary_observation"
             )
             state = tracker.update(evidence, observed)
+            if steering_indicator is not None:
+                state["steering"] = steering_indicator.update(evidence, state, observed)
             result = draw_direction_dashboard(image, state, info, settings=settings.display)
             writer.write(result)
             records.append(
@@ -123,6 +131,7 @@ def main(argv=None):
         "configuration": {
             "votes": asdict(settings.votes),
             "display": asdict(settings.display),
+            "steering": asdict(settings.steering),
             "arrow_easing_seconds": 0.12,
         },
         "detection_observations": records[-1]["total_observations"] if records else 0,

@@ -4,6 +4,10 @@ TwinLiteNet+의 차선 마스크와 SegFormer의 도로 마스크를 이용해 *
 
 기본 화면은 상단 소형 UI입니다. 화살표 길이는 최근 1초의 검출 지지율을 나타내고, 연속 검출·가중치·방향 간 차이를 함께 확인한 뒤 표시 방향을 바꿉니다. 중간 광류 추적 프레임은 새 검출 횟수로 세지 않습니다.
 
+가운데 스티어링 휠은 **화면 기준 방향각**에 따라 부드럽게 회전합니다. 음수는 왼쪽, 양수는 오른쪽이며 실제 차량의 조향각을 뜻하지 않습니다. 방향 전환 확인 중에는 반대 방향의 단발성 검출로 휠을 바꾸지 않고, 관측이 만료되면 회전량을 대기로 표시합니다.
+
+![상단 스티어링 UI 배치 예시 — 수치는 가상 예시](docs/images/steering-ui.png)
+
 > 도로 마스크는 현재 차로의 정답이 아닙니다. 차선과 최근 차로 이력이 부족한 구간은 `도로 중심 추정`으로 표시합니다. 가중치는 정답 확률이 아니며, 화면 각도는 실제 조향각이 아닙니다.
 
 ## 빠른 시작 — Windows / Python 3.11
@@ -69,6 +73,8 @@ FMA_Test/
 | 광류·경로 추적 | [`path_tracker.py`](src/drivable_area/tracking/path_tracker.py) |
 | 좌·직진·우 판단과 최근 검출 투표 | [`tracking/`](src/drivable_area/tracking/) |
 | 화살표·색상·글자·상단 배치 | [`dashboard.py`](src/drivable_area/visualization/dashboard.py) |
+| 스티어링 표시의 보간·유효 기간 | [`steering_indicator.py`](src/drivable_area/tracking/steering_indicator.py) |
+| 스티어링 휠 그림 | [`steering_wheel.py`](src/drivable_area/visualization/steering_wheel.py) |
 | TwinLiteNet+/SegFormer 추론 | [`models/segmentation.py`](src/drivable_area/models/segmentation.py) |
 
 CLI 인수가 설정 파일보다 우선합니다. 개인 경로는 `configs/local.toml`에 넣으세요. 이 파일과 가중치·영상·출력·캐시는 Git에서 제외됩니다.

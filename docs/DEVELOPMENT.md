@@ -27,9 +27,18 @@ switch_margin = 0.20
 [display]
 panel_height = 132
 arrow_length = 40
+
+[steering]
+enabled = true
+smoothing_seconds = 0.18
+max_rate_deg_per_second = 90.0
+max_angle_deg = 60.0
+expiry_seconds = 0.5
 ```
 
 상단 UI의 글자/색상은 `visualization/dashboard.py`, 기본값은 `config.py`에서 관리합니다. 새 필드를 만들면 TOML, 검증, 설명 문서를 함께 수정하세요.
+
+스티어링 표시의 시간 처리와 그림은 각각 `tracking/steering_indicator.py`, `visualization/steering_wheel.py`에 있습니다. `max_angle_deg`와 초당 변화량은 **그림 표시의 제한**이며 차량의 실제 조향 범위나 속도가 아닙니다. `enabled=false`이면 기존 가운데 직진 화살표로 돌아갑니다.
 
 경로 생성 수치까지 무작정 설정으로 노출하지는 않았습니다. 기하학적 변경은 `geometry/single_lane_center.py`와 관련 테스트에서 검토합니다. 추정 영역 중심에 대한 편차가 줄었다고 실제 차로 정답률이 오른 것으로 보고하지 않습니다.
 
