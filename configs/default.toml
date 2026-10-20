@@ -1,0 +1,34 @@
+# 상대 경로는 명령을 실행한 폴더 기준입니다.
+[video]
+height = 640
+fps = 0.0                # 0: 원본 평균 FPS
+start_seconds = 0.0
+duration = 0.0           # 0: 끝까지
+detect_every = 5
+planner = "lane-center"
+intent_only = true
+direction_arrows = true
+
+[votes]
+window_seconds = 1.0
+half_life_seconds = 0.35
+min_consecutive = 3
+enter_weight = 0.60
+switch_margin = 0.20
+expiry_seconds = 0.5
+
+[display]
+font_path = ""          # 자동 탐색; 필요하면 한글 글꼴 파일의 경로 지정
+panel_height = 132
+arrow_length = 40
+
+[models]
+twin_weight = "weights/small.pth"
+twin_config = "small"
+model_id = "nvidia/segformer-b0-finetuned-cityscapes-1024-1024"
+cache_dir = ".cache/huggingface"
+img_size = 640
+seg_size = 1024
+device = "auto"
+cpu_threads = 1
+local_files_only = false

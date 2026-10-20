@@ -1,0 +1,2 @@
+# Install PyTorch for your CPU/CUDA environment first; see docs/SETUP.md.
+-e .[inference]

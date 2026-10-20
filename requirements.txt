@@ -1,0 +1,2 @@
+# Core package: cached-mask tracking, geometry and display (no model downloads).
+-e .
